@@ -16,6 +16,7 @@ class QuickstartUser(HttpUser):
     urls = os.environ.get('TEST_PATHS', '').split(',')
 
     login_url = os.environ.get('TEST_LOGIN_PATH', '/users/login')
+    logout_url = os.environ.get('TEST_LOGOUT_PATH', '/users/logout')
     csrftoken_append = os.environ.get('TEST_CSRFTOKEN_APPEND', True)
     csrftoken_name = os.environ.get('TEST_CSRFTOKEN_NAME', 'csrfmiddlewaretoken')
 
@@ -25,6 +26,12 @@ class QuickstartUser(HttpUser):
             self.client.get(self.domain + url)
 
     def on_start(self):
+        self.login()
+
+    def on_stop(self):
+        self.logout()
+
+    def login(self):
         url = self.login_url
         creds = self.user.get('creds')
         if all([creds.get('username'), creds.get('password'), url]):
@@ -34,3 +41,9 @@ class QuickstartUser(HttpUser):
                 csrftoken = soup.find('input', attrs=dict(name=self.csrftoken_name))
                 creds.update({self.csrftoken_name: csrftoken.get('value')})
             self.client.post(self.domain + url, json=creds)
+
+    def logout(self):
+        url = self.logout_url
+        creds = self.user.get('creds')
+        if all([creds.get('username'), creds.get('password'), url]):
+            self.client.get(self.domain + url)

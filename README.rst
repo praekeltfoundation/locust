@@ -23,6 +23,9 @@ TEST_PASSWORD
 TEST_LOGIN_PATH
     This is a path of the auth url, defaults to `/users/login`
 
+TEST_LOGOUT_PATH
+    This is a path of the auth url, defaults to `/users/logout`
+
 TEST_CSRFTOKEN_APPEND
     Variable to determine whether the script should retrieve and inject a csrf token in the login request
     defaults to `True`
