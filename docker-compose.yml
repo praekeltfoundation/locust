@@ -2,16 +2,19 @@ version: '3'
 
 services:
   master:
-    image: locustio/locust
+    build:
+      context: ./
+      dockerfile: Dockerfile
     ports:
      - "8089:8089"
     volumes:
       - ./:/app
-    command: -f /app/locustfile.py --master -H http://master:8089
+    command: -f /app/locustfile.py --master -H http://master:8089 --web-auth='${HTUSER}:${HTPASSWD}'
 
   worker:
-    image: locustio/locust
+    build:
+      context: ./
+      dockerfile: Dockerfile
     volumes:
       - ./:/app
-    command: -f /app/locustfile.py --worker --master-host master
-
+    command: -f /app/locustfile.py --worker --master-host master --web-auth='${HTUSER}:${HTPASSWD}'

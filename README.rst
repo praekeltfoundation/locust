@@ -34,3 +34,13 @@ TEST_CSRFTOKEN_NAME
     Different systems name their csrf token inputs differently,
     you can change the name of the csrf token to extract and inject into the request with this variable.
     defaults to `csrfmiddlewaretoken`
+
+WEB UI Auth
+~~~~~~~~~~~
+The below env vars are required for basic auth
+
+HTUSER
+    username
+
+HTPASSWD
+    plain text password
