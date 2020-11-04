@@ -1,0 +1,34 @@
+sudo: false  # Force container-based builds.
+
+jobs:
+  include:
+    - stage: docker
+      sudo: required
+      dist: trusty
+      services: [docker]
+      env:
+        - IMAGE_NAME=praekeltfoundation/locust
+        - REGISTRY_USER=praekeltorgdeploy
+        - secure: "hLb+WRvenXJ/yZxURCPUxS2L0qJGWLxU2l9NyeHMDZKHkgkMlGztR/UkOeDS4jPq+wQ55SNQAeB3j7uIyem7l5efjVeERSOeVzxoeTTSzm7FHdnvpA3vzCFoiPSCM5WMt/t0p7mIDHmEAtZqr3Pes7qQJ4C3fH3Txfil6ljg/YziRn0R2Yz12vmXzDk3tHE55aInCOzdpc+Ikif6U08NNFThZCF01LpuL9muRQiCsOg/SHQ7gjuAqsz+hl8IM1XS4vHq0rccNGXjcbb16EpAQaj/JDmzuHpJ+EatWEhwlMyIsq/JNhQ6zm6QYvaGKGRCvFRcErEsPCTLtClQAzrIborgb3vAw7e29FCJGBMUZV1m30BhPJg6pWXWiJljXzCCX5nd9srYjOT+3fb+L0VFMebi7DzDrJA/do9TZiIRwPHPTC82fjqfulCrynW3ygR6t3392cHc7D5X977uc2jyWuLJD7WefOoGmtMHcVNveWeJETAz2EFLY9fEIQ5HZ50CdSBlLbZ2fZAZ3Qf0hFOLuLslXbmOTDKZ6WUAAVMvQrEPSufotZ06N70w5IPFvTrHS8Kj8FarwRqWiqCx/Ind670EwE+ScWPL8nT0Ka1GeSprVtlXXzdQb+6QsyCZperhodRITOpm/JYEj4ozvT/3AN7SVASEVlm1LPWnqG9wya4="
+
+      # Update Docker: we want some new docker build features
+      install:
+        - sudo apt-get update
+        - sudo apt-get install -y -o Dpkg::Options::="--force-confold" docker-ce
+
+      before_deploy:
+        - pip install docker-ci-deploy==0.3.0
+        - echo -n $REGISTRY_PASS | docker login -u "$REGISTRY_USER" --password-stdin
+      deploy:
+        - provider: script
+          script: dcd --version "$(git rev-parse --short HEAD)" --version-latest "$IMAGE_NAME"
+          on:
+            branch: develop
+        - provider: script
+          script: dcd --tag "$TRAVIS_TAG" -- "$IMAGE_NAME"
+          on:
+            tags: true
+
+      # Built steps inherited from the default stage that we don't want
+      before_install: ignore
+      after_success: []
