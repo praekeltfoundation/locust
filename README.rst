@@ -14,6 +14,9 @@ TEST_PATHS
 
 *In an instance where a user is required to be logged in*
 
+TEST_AUTH_TOKEN
+    Auth token header added to every request
+
 TEST_USERNAME
     This is the var to set to provide the script with a username
 

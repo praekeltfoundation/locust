@@ -5,12 +5,13 @@ from locust import HttpUser, task, between
 
 class QuickstartUser(HttpUser):
     wait_time = between(1, 2)
-    domain = os.environ.get('TEST_DOMAIN', '')
+    domain = os.environ.get('TEST_DOMAIN', 'https://rapidpro.qa-hub.ie.gehosting.org')
+    auth_token = os.environ.get('TEST_AUTH_TOKEN')
 
     user = {
         "creds": {
-            "username": os.environ.get("TEST_USERNAME", ''),
-            "password": os.environ.get("TEST_PASSWORD", '')
+            "username": os.environ.get("TEST_USERNAME"),
+            "password": os.environ.get("TEST_PASSWORD")
         }
     }
     urls = os.environ.get('TEST_PATHS', '').split(',')
@@ -23,7 +24,13 @@ class QuickstartUser(HttpUser):
     @task
     def test_page(self):
         for url in self.urls:
-            self.client.get(self.domain + url)
+            kw = {
+                'headers': {
+                    'Authorization': self.auth_token,
+                    'Referer': self.host,
+                }
+            }
+            self.client.get(self.domain + url, **kw)
 
     def on_start(self):
         self.login()
